@@ -1,6 +1,12 @@
 // setup the fibonacciCanvas
 var fibonacciCanvas = document.getElementById('fibonacciCanvas');
 var context = fibonacciCanvas.getContext('2d');
+context.lineWidth = 10;
+context.strokeStyle = '#0fff00';
+var scaler = 5;
+var fibSequence = [1, 1];
+
+// Handle edge cases
 
 fibonacciCanvas.addEventListener('wheel', (event) => {
   if (event.ctrlKey) {
@@ -11,17 +17,14 @@ fibonacciCanvas.addEventListener('wheel', (event) => {
 const updateCanvasSize = () => {
   fibonacciCanvas.width = innerWidth;
   fibonacciCanvas.height = innerHeight;
-  restartFibonacci();
 };
 
 updateCanvasSize();
 window.addEventListener('resize', updateCanvasSize);
 
 
-var scaler = 5;
 
-var fibSequence = [1, 1];
-
+// calculate the next fibonacci sequence
 function nextFibonacci() {
   var lastIndex = fibSequence.length;
   var newFibonacci = fibSequence[lastIndex - 1] + fibSequence[lastIndex - 2];
@@ -32,25 +35,22 @@ function nextFibonacci() {
   return newFibonacci;
 }
 
+// the position in the screen to draw from
 let x = fibonacciCanvas.width / 2;
 let y = fibonacciCanvas.height / 2;
 
+// Draw a cube in the center of the screen (also the center of the fibonacci canvas)
 context.fillRect(x - 2.5, y - 2.5, 5, 5);
 
+// the next direction for the spiral
 let horizontalRight = true;
 let verticalUp = true;
 let toggleVertical = true;
 
+// the angel in which the spiral starts with
 var startAngle = 90;
 
-function drawFibonacci() {
-  context.lineWidth = 1;
-
-  let currFibonacci = nextFibonacci();
-  let radius = currFibonacci * scaler;
-
-  toggleVertical = !toggleVertical;
-
+function calcNewPoint(radius) {
   let newX = x;
   let newY = y;
 
@@ -76,19 +76,39 @@ function drawFibonacci() {
     }
   }
 
-  let xToDraw = newX;
-  let yToDraw = newY;
+  return [newX, newY];
+}
 
+function toggleNextDirection() {
   if (toggleVertical) {
-    xToDraw += horizontalRight ? radius : -radius;
+    verticalUp = !verticalUp;
   } else {
-    yToDraw += horizontalRight ? -radius : radius;
+    horizontalRight = !horizontalRight;
   }
+}
+
+function calcDrawPoint(baseX, baseY, radius) {
+  if (toggleVertical) {
+    baseX += horizontalRight ? radius : -radius;
+  } else {
+    baseY += horizontalRight ? -radius : radius;
+  }
+
+  return [baseX, baseY];
+}
+
+function drawFibonacci() {
+  let currFibonacci = nextFibonacci();
+  let radius = currFibonacci * scaler;
+
+  toggleVertical = !toggleVertical;
+
+  let [newX, newY] = calcNewPoint(radius);
+  let [xToDraw, yToDraw] = calcDrawPoint(newX, newY, radius);
 
   var endAngle = startAngle + 90;
 
   context.beginPath();
-  context.strokeStyle = '#000000';
   context.arc(
     xToDraw,
     yToDraw,
@@ -102,17 +122,10 @@ function drawFibonacci() {
   x = newX;
   y = newY;
 
-  // toggle sizes
-  if (toggleVertical) {
-    verticalUp = !verticalUp;
-  } else {
-    horizontalRight = !horizontalRight;
-  }
+  toggleNextDirection();
 
   startAngle -= 90;
 }
-setInterval(drawFibonacci, 100);
 
-function restartFibonacci() {
-  fibSequence = [1, 1];
-}
+// draw a part of the fibonacci spiral each 100ms
+setInterval(drawFibonacci, 100);
