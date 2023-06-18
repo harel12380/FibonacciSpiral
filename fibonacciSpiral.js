@@ -1,8 +1,6 @@
 // setup the fibonacciCanvas
 var fibonacciCanvas = document.getElementById('fibonacciCanvas');
 var context = fibonacciCanvas.getContext('2d');
-context.lineWidth = 10;
-context.strokeStyle = '#0fff00';
 var scaler = 5;
 var fibSequence = [1, 1];
 
@@ -41,6 +39,9 @@ let y = fibonacciCanvas.height / 2;
 
 // Draw a cube in the center of the screen (also the center of the fibonacci canvas)
 context.fillRect(x - 2.5, y - 2.5, 5, 5);
+
+context.lineWidth = 5;
+context.strokeStyle = '#000';
 
 // the next direction for the spiral
 let horizontalRight = true;
